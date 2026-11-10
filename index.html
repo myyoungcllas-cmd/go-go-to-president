@@ -1,39 +1,39 @@
-<!doctype html>
-<html lang="ko">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!docytype html>
+}html lang="ko">
+<머리>
+<meta charset="utf-8"><meta 이름="viewport" 콘텐츠="width=장치 폭, initial 스케일=1">
 <title>교실에서 청와대까지</title>
-<style>
+<스타일.>
 :root{--bg:#101827;--panel:#1b2940;--panel2:#243650;--ink:#f3f6fb;--muted:#aebbd0;--gold:#ffd166;--blue:#73b7ff;--green:#7ee0b0;--red:#ff9292}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#101827,#182943);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif}
-main{max-width:900px;margin:auto;padding:22px 16px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-h1{font-size:clamp(26px,5vw,40px);margin:4px 0;color:var(--gold)}h2{font-size:22px;margin:0 0 12px}p{margin:8px 0}.muted{color:var(--muted)}.tag{border:1px solid #405574;border-radius:99px;padding:5px 10px;color:var(--blue);font-size:13px}
-.panel{background:linear-gradient(160deg,var(--panel),#172337);border:1px solid #334763;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 12px 28px #0003}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}@media(max-width:600px){.grid{grid-template-columns:1fr}}
-.stat{background:#101c2d;border-radius:12px;padding:10px}.stathead{display:flex;justify-content:space-between;font-size:14px}.bar{height:8px;background:#34445b;border-radius:10px;overflow:hidden;margin-top:7px}.fill{height:100%;background:linear-gradient(90deg,#68aaff,#83e2ba);width:50%}
-button{border:0;border-radius:12px;padding:12px 14px;font-weight:700;background:var(--blue);color:#102033;cursor:pointer;font-size:15px}button:hover{filter:brightness(1.08)}button.secondary{background:#344963;color:var(--ink)}button.gold{background:var(--gold)}button:disabled{opacity:.45;cursor:not-allowed}
-input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #52647d;background:#101c2d;color:white;font-size:16px;margin:5px 0 12px}
-.choices{display:grid;gap:9px}.choices button{text-align:left;background:#293d59;color:var(--ink);border:1px solid #435b7b}.choices button:hover{border-color:var(--gold)}
-.big{font-size:22px;font-weight:800;color:var(--gold)}.notice{border-left:4px solid var(--gold);padding:10px 12px;background:#29354a;border-radius:8px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row button{flex:1;min-width:130px}
-#log{max-height:230px;overflow:auto;font-size:14px}.logline{padding:7px 0;border-bottom:1px solid #30415a}
-footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
-</style></head>
-<body><main>
-<div class="top"><div><div class="tag">인생·선거 경영 시뮬레이션</div><h1>교실에서 청와대까지</h1><p class="muted">초등학교 전교회장부터 대통령까지, 선택으로 만드는 나의 정치 인생</p></div><button class="secondary" onclick="resetGame()">새 게임</button></div>
-<section class="panel" id="setup">
-<h2>나의 출발점</h2><label>플레이어 이름</label><input id="playerName" maxlength="12" placeholder="이름을 입력하세요">
-<label>정치 스타일</label><select id="style"><option value="balanced">소통형 — 신뢰와 인맥에 강점</option><option value="speech">연설형 — 대중 호감과 인지도에 강점</option><option value="policy">정책형 — 정책 능력과 성실함에 강점</option></select>
-<button class="gold" onclick="startGame()">정치 인생 시작하기</button>
-</section>
-<div id="game" hidden>
-<section class="panel"><div class="top"><div><div class="tag" id="stageTag">초등학교</div><h2 id="stageTitle">전교회장 선거</h2><div class="muted" id="yearText">1년 차</div></div><div class="big" id="cash">활동 자금 10</div></div><p id="intro"></p></section>
-<section class="panel"><h2>현재 능력치</h2><div class="grid" id="stats"></div></section>
-<section class="panel"><h2 id="eventTitle">오늘의 선택</h2><p id="eventDesc"></p><div class="choices" id="choices"></div></section>
-<section class="panel"><h2>정치 활동 기록</h2><div id="log"></div></section>
-<section class="panel" id="result" hidden></section>
+*{박스 크기: 보더 박스} 본문{마진:0;배경: 선형 기울기(145도, #101827, #182943);색상:var(--ink);font:16px/1.55 system-ui,-apple-system"Apple SD 고딕 네오"sans-serif
+메인 {최대 너비:900 px;margin:auto;padding:22 px 16 px 50 px}.상단{디스플레이:플렉스;justify-콘텐츠:스페이스-중간;align-items:센터;갭:12px;플렉스-wrap:wrap}
+h1{font 크기:clamp(26px, 5vw, 40px);margin:4px 0;color:var(--gold)}h2{font 크기:22px;margin:0 0 12px}p{margin:8px 0}.muted{color:var(--muted)}.tag{경계:1px 솔리드 #405574;경계-radius:99px;padding:5px 10px;color:var(--파란색);font 크기:13px}
+.패널{배경: 선형-gradient(160 deg, var(--패널), #172337);경계:1 px 솔리드 #334763;경계-radius:18 px;padding:18 px;margin:14 px 0;박스-shadow:0 12 px 28 px #0003}
+.grid{디스플레이:그리드;그리드-template-columns:repeat(2,minmax(0,1fr));갭:10 px}@media(최대 너비:600 px){.grid{그리드-template-columns:1fr}
+.stat{배경:#101c2d; 경계-radius:12 px;padding:10 px}.stathead{디스플레이:플렉스;justify-콘텐츠:공간-중간;font-크기:14 px}.bar{높이:8 px;배경:#34445b;경계-radius:10 px;overflow:숨겨진;margin-탑:7 px}.채움:높이:100%;배경:선형-gradient(90 deg,#68aff,#83e2ba);폭:50%}
+버튼 {경계:0;경계-radius:12 px;padding:12 px 14 px;font-무게:700;배경:var(--파란색);색상:#102033;cursor:pointer;font-크기:15px} 버튼:hover{필터:밝기(1.08)} 버튼.세컨더리{배경:#344963;색상:var(--ink)} 버튼.gold{배경:var(--gold)} 버튼:비활성화{불투명도:45;cursor:비활성화}
+입력, 선택 {폭:100%; padding:12 px; 경계-radius:10 px; 경계:1 px 솔리드 #52647d; 배경:#101c2d; 색상:흰색;font 크기:16 px;margin:5 px 0 12 px}
+.choices{디스플레이:그리드;갭:9px}.choices 버튼{텍스트-align:왼쪽;배경:#293d59;색상:var(--잉크);경계:1px 솔리드 #435b7b}.choices 버튼:hover{경계색상:var(--골드)}
+.big{font 크기:22 px;font 무게:800;색상:var(--gold)}.notice{경계-왼쪽:4 px 솔리드 var(--gold);padding:10 px 12 px;배경:#29354a;경계-radius:8 px}
+.row{디스플레이:플렉스;갭:8 px;플렉스-wrap:wrap;align-items:센터}.행 버튼{플렉스:1;최소 너비:130 px}
+#log{최대 높이:230 px;overflow:auto;font 크기:14 px}.logline{padding:7 px 0;경계 바닥:1 px 솔리드 #30415a}
+바닥글 {텍스트 align:센터;색상:var(--muted);font 크기:12 px;margin 상단:25 px}
+</스타일.>>머리</
+>몸<>주된<
+<div class="top"><div><div><div class="tag">인생, 선거 경영 시뮬레이션</div><h1>교실에서 청와대까지</h1><p class="muted">초등학교 전교회장부터 대통령까지, 선택으로 만드는 나의 정치 인생</p></div><버튼 class="보조" 온클릭="리셋게임()"새 게임</버튼></div>
+<섹션 클래스="패널" ID="setup">
+<h2>나의 출발점</h2><label>플레이어 이름</label><입력 ID="playerName" maxlength="12" 플레이스홀더="이름을 입력하세요">
+<label>정치 스타일</label><선택 id="style"><옵션 가치="균형 잡힌">소통형 - 신뢰와 인맥에 강점</옵션><옵션 가치="speech">연설형 - 대중 호감과 인지도에 강점</옵션 가치="정책">정책형 - 정책 능력과 성실함에 강점</옵션></옵션 가치="정책">정책형 - 정책 능력과 성실함에 강점</옵션></옵션></선택>
+버튼 클래스="골드" 클릭="startGame()">정치 인생 시작하기</버튼>
+</부분</
+<div id= "game" 숨김>
+<섹션 class="panel"><div class="top"><div><div class="tag" id="stageTag">초등학교</div><h2 id="stageTitle">전교회장 선거</h2><div class="muted" id="yearText">1 년 차</div><div class="big" id="cash">활동 자금 10</div><p id="intro"><p></p><섹션>
+<섹션 class="panel"><h2>현재 능력치</h2><div class="grid" id="stats"></div><섹션>
+<섹션 class="panel"><h2 id="eventTitle">오늘의 선택</h2><p id="eventDesc"></p><div class="choices" id="choices"></div></section>
+<섹션 클래스="패널"><h2>정치 활동 기록</h2><div id="log"></div></section>
+<섹션 클래스="패널" ID="result" 숨김></섹션>
 </div><footer>가상의 국가와 인물로 진행되는 창작 시뮬레이션입니다. 실제 선거 결과나 정치 현실을 예측하지 않습니다.</footer>
-</main>
+</주된</
 <script>
 const stages=[
  {name:"초등학교",title:"전교회장 선거",intro:"작은 약속을 지키는 것부터 시작합니다. 친구들의 신뢰를 얻어 전교회장에 도전하세요.",rounds:3,win:24,events:[
