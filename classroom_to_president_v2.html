@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>교실에서 청와대까지 - 정치 인생 시뮬레이터</title>
+<style>
+:root{--bg:#101827;--panel:#1b2940;--ink:#f3f6fb;--muted:#aebbd0;--gold:#ffd166;--blue:#73b7ff;--green:#7ee0b0;--red:#ff9292}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#101827,#182943);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif}
+main{max-width:960px;margin:auto;padding:20px 15px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+h1{font-size:clamp(27px,5vw,40px);margin:4px 0;color:var(--gold)}h2{font-size:21px;margin:0 0 12px}h3{font-size:17px;margin:0 0 7px}p{margin:8px 0}.muted{color:var(--muted)}.tag{border:1px solid #405574;border-radius:99px;padding:4px 10px;color:var(--blue);font-size:12px;display:inline-block}
+.panel{background:linear-gradient(160deg,var(--panel),#172337);border:1px solid #334763;border-radius:17px;padding:17px;margin:13px 0;box-shadow:0 12px 28px #0003}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}@media(min-width:680px){.grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:560px){.grid{grid-template-columns:1fr}}
+.stat{background:#101c2d;border-radius:11px;padding:10px}.stathead{display:flex;justify-content:space-between;font-size:14px}.bar{height:8px;background:#34445b;border-radius:10px;overflow:hidden;margin-top:7px}.fill{height:100%;background:linear-gradient(90deg,#68aaff,#83e2ba)}
+button{border:0;border-radius:11px;padding:11px 13px;font-weight:700;background:var(--blue);color:#102033;cursor:pointer;font-size:14px}button:hover{filter:brightness(1.08)}button.secondary{background:#344963;color:var(--ink)}button.gold{background:var(--gold)}button.danger{background:#9c4b58;color:white}button:disabled{opacity:.45;cursor:not-allowed}
+input,select{width:100%;padding:11px;border-radius:9px;border:1px solid #52647d;background:#101c2d;color:white;font-size:16px;margin:5px 0 12px}
+label{font-size:14px;color:var(--muted)}.choices{display:grid;gap:8px}.choices button{text-align:left;background:#293d59;color:var(--ink);border:1px solid #435b7b}.choices button:hover{border-color:var(--gold)}
+.big{font-size:22px;font-weight:800;color:var(--gold)}.notice{border-left:4px solid var(--gold);padding:10px 12px;background:#29354a;border-radius:8px;margin:10px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row button{flex:1;min-width:120px}.metric{font-size:22px;font-weight:800}.good{color:var(--green)}.bad{color:var(--red)}
+#log{max-height:260px;overflow:auto;font-size:13px}.logline{padding:7px 0;border-bottom:1px solid #30415a}
+.news{padding:10px;border-radius:10px;background:#101c2d;margin:7px 0;border-left:3px solid var(--blue)}
+.hidden{display:none!important}.pill{padding:3px 8px;border-radius:99px;background:#344963;font-size:12px;color:#dbe8f7}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:25px}
+</style></head>
+<body><main>
+<div class="top"><div><div class="tag">정치 인생·선거 경영 시뮬레이션</div><h1>교실에서 청와대까지</h1><p class="muted">작은 교실에서 시작해 국가의 미래를 결정하는 자리까지.</p></div><button class="secondary" onclick="resetGame()">새 게임</button></div>
+<section class="panel" id="setup">
+<h2>나의 출발점</h2><label>플레이어 이름</label><input id="playerName" maxlength="12" placeholder="이름을 입력하세요">
+<label>정치 스타일</label><select id="style"><option value="balanced">소통형 — 신뢰와 협상에 강점</option><option value="speech">연설형 — 대중 호감과 인지도에 강점</option><option value="policy">정책형 — 정책 능력과 성실함에 강점</option><option value="reform">개혁형 — 추진력과 변화 지향</option></select>
+<button class="gold" onclick="startGame()">정치 인생 시작하기</button>
+</section>
+<div id="game" hidden>
+<section class="panel"><div class="top"><div><div class="tag" id="stageTag"></div><h2 id="stageTitle"></h2><div class="muted" id="yearText"></div></div><div class="big" id="cash"></div></div><p id="intro"></p></section>
+<section class="panel"><h2>정치 현황</h2><div class="grid three" id="quick"></div></section>
+<section class="panel"><h2>핵심 능력치</h2><div class="grid" id="stats"></div></section>
+<section class="panel" id="partyPanel"><h2>정당 및 정치 기반</h2><div id="partyInfo"></div></section>
+<section class="panel" id="pollPanel"><h2>민심·여론조사</h2><div id="pollInfo"></div></section>
+<section class="panel"><h2 id="eventTitle">오늘의 선택</h2><p id="eventDesc"></p><div class="choices" id="choices"></div></section>
+<section class="panel" id="actionPanel"><h2>정치 활동</h2><div class="row" id="actions"></div></section>
+<section class="panel"><h2>언론 보도</h2><div id="news"></div></section>
+<section class="panel"><h2>정치 활동 기록</h2><div id="log"></div></section>
+<section class="panel" id="result" hidden></section>
+</div><footer>가상의 국가·정당·인물로 진행되는 창작 시뮬레이션입니다. 실제 정치인이나 선거 결과와 무관합니다.</footer>
+</main>
+<script>
+const stages=[
+{name:"초등학교",title:"전교회장 선거",intro:"작은 약속을 지키는 것부터 시작합니다.",rounds:3,win:24,events:[
+["친구들이 쉬는 시간 놀이 공간이 부족하다고 합니다.",["학생 의견을 모아 놀이 공간 개선안을 만든다.",{trust:7,lead:5,policy:3}],["친구들과 캠페인을 연다.",{pop:7,network:4}],["선생님과 해결 방법을 협의한다.",{policy:5,trust:3}]],
+["공약 발표 시간이 다가왔습니다.",["실현 가능한 공약 세 가지를 구체적으로 발표한다.",{policy:7,trust:5}],["재미있는 연설로 분위기를 사로잡는다.",{pop:8,speech:5}],["친구들의 고민을 듣는 간담회를 연다.",{network:6,trust:6}]],
+["선거 직전 경쟁 후보가 인기 공약을 발표했습니다.",["실행 계획과 차별점을 설명한다.",{policy:6,trust:4}],["상대 후보를 비난하지 않고 응원한다.",{trust:8,pop:2}],["반 친구들과 마지막 홍보 활동을 한다.",{pop:5,network:5}]]]},
+{name:"중학교",title:"학생회장 선거",intro:"학교 전체의 문제를 조정하고 다양한 의견을 듣습니다.",rounds:3,win:32,events:[
+["급식 만족도와 잔반 문제가 동시에 제기됐습니다.",["설문을 진행하고 영양 선생님과 협의한다.",{policy:7,trust:6}],["잔반 줄이기 캠페인을 시작한다.",{pop:5,lead:5}],["학생·교사 공동 협의체를 제안한다.",{policy:6,trust:5}]],
+["휴대전화 사용 규칙 논쟁이 커졌습니다.",["찬반 토론회를 열어 절충안을 찾는다.",{network:7,trust:6}],["학생 자율에 맡기자는 입장을 발표한다.",{speech:5,pop:4}],["학생 의견을 정리해 학교에 전달한다.",{policy:6,lead:4}]],
+["축제 예산 배분을 두고 동아리 간 갈등이 생겼습니다.",["공개 기준을 만들어 배분한다.",{policy:7,trust:5}],["모든 동아리 대표와 협상한다.",{network:8,lead:3}],["인기 프로그램 중심으로 편성한다.",{pop:6,trust:-3}]]]},
+{name:"고등학교",title:"학생회장 선거",intro:"학교를 넘어 지역사회와 연결되는 활동이 중요해집니다.",rounds:3,win:43,events:[
+["지역 청소년 시설이 부족하다는 의견이 나왔습니다.",["지역 의회에 정책 제안서를 제출한다.",{policy:8,network:4}],["학생 주도 토론회와 설문을 진행한다.",{trust:6,lead:5}],["온라인 캠페인으로 관심을 모은다.",{pop:7,speech:3}]],
+["학교 안에서 소외되는 학생이 있다는 문제가 제기됐습니다.",["익명 의견함과 상담 연결 체계를 제안한다.",{trust:8,policy:5}],["참여형 인식 개선 행사를 연다.",{lead:5,pop:5}],["당사자 의견을 직접 듣는다.",{network:6,trust:7}]],
+["졸업을 앞두고 활동 성과를 평가받습니다.",["성과와 부족한 점을 모두 공개한다.",{trust:8,policy:4}],["후배들에게 운영 경험을 전수한다.",{lead:7,network:4}],["지역 청소년 의제 발표회를 연다.",{speech:6,pop:4,policy:3}]]]},
+{name:"대학교",title:"총학생회장 선거",intro:"더 큰 조직과 예산을 운영합니다. 협상과 정책 설계가 핵심입니다.",rounds:3,win:50,events:[
+["등록금과 장학제도를 둘러싼 갈등이 커졌습니다.",["자료를 분석해 학교 측과 공개 협상한다.",{policy:8,trust:6}],["학생 총회를 열어 의견을 모은다.",{lead:7,network:5}],["핵심 요구를 정리해 단계적으로 추진한다.",{policy:6,trust:4}]],
+["총학생회 예산 사용을 두고 의혹이 제기됐습니다.",["회계 자료를 공개하고 외부 점검을 받는다.",{trust:10,policy:5}],["학생 대표 감사위원회를 만든다.",{trust:7,lead:5}],["해명문을 발표하고 활동을 이어간다.",{speech:4,pop:2,trust:-3}]],
+["지역 청년 정책 토론회에 초청받았습니다.",["주거·교통·일자리 대안을 제시한다.",{policy:8,speech:5}],["청년들의 실제 경험을 전달한다.",{trust:7,network:5}],["여러 대학과 공동 정책 연대를 만든다.",{network:8,lead:4}]]]},
+{name:"사회 진출",title:"지역 정치 도전",intro:"지역 현장에서 공적 경험과 정치적 기반을 쌓습니다.",rounds:3,win:57,events:[
+["지역 교통 불편 문제가 주요 현안이 됐습니다.",["주민 의견과 자료를 바탕으로 대안을 만든다.",{policy:8,trust:5}],["주민 간담회를 정기적으로 연다.",{network:7,trust:6}],["시범 사업을 제안해 성과를 확인한다.",{lead:6,policy:6}]],
+["정책 방향을 두고 동료들과 의견이 갈립니다.",["근거를 비교해 합의안을 찾는다.",{policy:6,network:6,trust:4}],["소신을 분명히 밝히고 공개 토론한다.",{speech:6,lead:4}],["전문가 자문을 받아 수정안을 제시한다.",{policy:8,trust:3}]],
+["현장에서 예상치 못한 민원이 발생했습니다.",["현장을 찾아 진행 상황을 설명한다.",{trust:8,network:4}],["담당 기관과 해결 일정을 공개한다.",{policy:6,trust:6}],["장기 개선 계획을 발표한다.",{speech:5,policy:5}]]]},
+{name:"국가 정치",title:"국회의원 선거",intro:"국가 단위의 의제를 다루며 법과 예산을 공부합니다.",rounds:3,win:64,events:[
+["주거비 부담을 낮출 정책을 준비해야 합니다.",["재정 영향과 대상별 효과를 검토한다.",{policy:9,trust:4}],["청년·전문가 공개 토론을 연다.",{network:6,speech:5}],["단계별 시범 정책을 제안한다.",{policy:7,lead:5}]],
+["재난 대응 체계 개선 요구가 커졌습니다.",["현장 기관과 전문가 의견을 모은다.",{policy:8,trust:6}],["초당적 협의체를 제안한다.",{network:8,lead:5}],["예산과 책임 기관을 명확히 한 법안을 낸다.",{policy:9,lead:4}]],
+["언론 인터뷰에서 정책의 약점을 질문받았습니다.",["모르는 부분은 인정하고 보완 계획을 설명한다.",{trust:8,speech:4}],["자료를 근거로 차분히 답변한다.",{policy:6,speech:6}],["비판을 수용해 정책을 수정한다.",{trust:7,policy:5}]]]},
+{name:"대통령 선거",title:"대한민국 대통령 선거",intro:"정당의 후보가 되어 국가 비전과 실현 가능한 공약으로 국민의 선택을 받아야 합니다.",rounds:4,win:72,events:[
+["대통령 후보 수락 연설을 준비합니다.",["국가 운영 원칙과 통합의 메시지를 발표한다.",{trust:7,speech:6}],["핵심 공약과 재원 조달 계획을 설명한다.",{policy:8,trust:4}],["각 지역을 돌며 시민들과 대화한다.",{network:7,pop:5}]],
+["경쟁 후보의 공약이 화제가 됐습니다.",["공약의 실현 가능성을 차분히 비교한다.",{policy:7,trust:4}],["내 정책의 차별성을 토론에서 보여준다.",{speech:7,pop:4}],["초당적 협력과 국민 통합을 강조한다.",{trust:7,network:5}]],
+["TV 토론에서 경제·복지 정책 질문을 받았습니다.",["비용과 효과를 수치로 설명한다.",{policy:8,speech:5}],["현장의 목소리를 중심으로 답한다.",{trust:6,pop:5}],["전문가 검증을 거친 보완책을 제시한다.",{policy:7,trust:5}]],
+["선거 전 마지막 여론조사가 발표됐습니다.",["불리한 지역을 찾아 유권자 의견을 듣는다.",{network:7,trust:5}],["마지막 정책 발표로 비전을 강조한다.",{speech:6,policy:5}],["지지자들에게 차분하고 책임 있는 참여를 당부한다.",{trust:7,lead:4}]]]}
+];
+const presidents=[
+["취임 직후 민생 경제 대책을 결정해야 합니다.",["취약계층 지원과 재정 건전성을 함께 고려한다.",{approval:7,policy:6,trust:4}],["기업 투자와 일자리 확대에 집중한다.",{approval:5,policy:5,network:3}],["전국 민생 현장을 찾아 의견을 듣는다.",{approval:6,trust:7,pop:3}]],
+["국회와 정부의 예산 우선순위가 충돌합니다.",["여야 공개 협상을 제안한다.",{approval:5,network:8,trust:4}],["장기 국가 계획을 근거로 설득한다.",{policy:8,approval:3}],["일부 사업을 조정해 합의안을 만든다.",{trust:6,approval:4,policy:4}]],
+["대형 재난 대응에 대한 국민의 관심이 집중됩니다.",["현장 지휘와 정보 공개를 강화한다.",{approval:8,trust:7,policy:4}],["독립적인 조사와 재발 방지책을 약속한다.",{trust:8,policy:6}],["피해 지원 예산을 신속히 편성한다.",{approval:7,policy:5}]],
+["정부 정책을 둘러싼 대규모 사회적 논쟁이 이어집니다.",["당사자·전문가가 참여하는 공론화를 연다.",{trust:7,network:5,approval:4}],["정책 효과와 부작용 자료를 공개한다.",{policy:7,trust:5}],["시행 시기를 조정하고 보완책을 마련한다.",{approval:5,trust:4,policy:3}]],
+["임기 중반, 국정 운영 평가가 엇갈립니다.",["성과와 실패를 함께 점검하고 개편한다.",{trust:7,approval:5,policy:5}],["국민과의 대화를 통해 우선순위를 재설정한다.",{pop:5,trust:6,approval:4}],["전문가 중심의 정책 점검단을 꾸린다.",{policy:7,network:4}]]
+];
+const statNames={trust:"신뢰도",pop:"대중 호감",lead:"리더십",policy:"정책 능력",speech:"소통·연설",network:"인맥·협상"};
+const rivals=["강도윤","서민재","윤하린","박서준","한지우","최은결","정유찬","임서현"];
+const partyNames=["미래연합","국민개혁당","민생중심당","새로운내일당"];
+let g=null;
+function clamp(x){return Math.max(0,Math.min(100,Math.round(x)))}
+function avg(){return Math.round(Object.values(g.stats).reduce((a,b)=>a+b,0)/6)}
+function addLog(t){g.log.unshift(t);g.log=g.log.slice(0,35)}
+function news(t,kind="info"){g.news.unshift({t,kind});g.news=g.news.slice(0,6)}
+function startGame(){
+ let name=document.getElementById("playerName").value.trim();if(!name){alert("이름을 입력해 주세요.");return}
+ let style=document.getElementById("style").value;
+ g={name,style,stage:0,round:0,stats:{trust:25,pop:25,lead:25,policy:20,speech:25,network:20},cash:12,won:0,log:[],news:[],party:null,partyFounded:false,partySupport:0,termsServed:0,opponent:rivals[Math.floor(Math.random()*rivals.length)],approval:50,impeach:0,term:0,presTerm:0,age:8,phase:"career",done:false,electionCount:0};
+ if(style==="balanced"){g.stats.trust+=6;g.stats.network+=5}
+ if(style==="speech"){g.stats.pop+=8;g.stats.speech+=6}
+ if(style==="policy"){g.stats.policy+=9;g.stats.lead+=3}
+ if(style==="reform"){g.stats.lead+=8;g.stats.pop+=4;g.stats.trust-=2}
+ document.getElementById("setup").hidden=true;document.getElementById("game").hidden=false;
+ news("새로운 정치인이 등장했습니다. 지역 사회의 관심이 모이고 있습니다.");
+ render();
+}
+function render(){
+ if(!g||g.done)return;
+ let stage=stages[g.stage];let presidential=g.phase==="president";
+ document.getElementById("stageTag").textContent=presidential?"대통령 임기":stage.name;
+ document.getElementById("stageTitle").textContent=presidential?`제${g.presTerm}년 국정 운영`:stage.title;
+ document.getElementById("yearText").textContent=presidential?`임기 ${g.presTerm}년 차 · 총 5년 임기`:`정치 경력 ${g.age}세 · ${g.round+1}/${stage.rounds}단계`;
+ document.getElementById("cash").textContent=`정치 자금 ${g.cash}억`;
+ document.getElementById("intro").textContent=presidential?`대통령 ${g.name}님, 국민의 신뢰를 지키며 국정을 운영하세요.`:`${g.name}님, ${stage.intro}`;
+ document.getElementById("quick").innerHTML=[
+ ["지지율",presidential?g.approval+"%":poll()+"%"],["경쟁자",g.opponent],["정당",g.party||"무소속"],["탄핵 위험",presidential?g.impeach+"%":"해당 없음"],["정치 자금",g.cash+"억"],["경력",g.won+"단계 통과"]
+ ].map(x=>`<div class="stat"><div class="muted">${x[0]}</div><div class="metric">${x[1]}</div></div>`).join("");
+ document.getElementById("stats").innerHTML=Object.entries(statNames).map(([k,v])=>`<div class="stat"><div class="stathead"><span>${v}</span><b>${g.stats[k]}</b></div><div class="bar"><div class="fill" style="width:${g.stats[k]}%"></div></div></div>`).join("");
+ document.getElementById("partyInfo").innerHTML=g.party?`<p><b>${g.party}</b> · 당내 지지도 ${g.partySupport}%</p><p class="muted">당원과 의원들의 협조를 얻으면 정책 추진과 선거에 도움이 됩니다.</p>`:`<p>현재 무소속입니다. 사회 진출 단계 이후 정당을 창당하거나 기존 정당에 합류할 수 있습니다.</p>`;
+ document.getElementById("pollInfo").innerHTML=presidential?`<p>국정 지지율 <b class="metric">${g.approval}%</b></p><div class="bar"><div class="fill" style="width:${g.approval}%"></div></div><p class="muted">국정 지지율이 낮으면 탄핵 정국이나 재선 실패 위험이 커집니다.</p>`:`<p>예상 지지율 <b class="metric">${poll()}%</b> · 경쟁자 ${g.opponent} 예상 득표율 ${100-poll()}%</p><div class="bar"><div class="fill" style="width:${poll()}%"></div></div><p class="muted">여론조사는 현재 능력치·정당 기반·정치 자금 등을 반영한 게임 내 추정치입니다.</p>`;
+ let ev=presidential?presidents[(g.presTerm-1)%presidents.length]:stage.events[g.round];
+ document.getElementById("eventTitle").textContent=presidential?`국정 과제 ${g.presTerm}년 차`:`선택 ${g.round+1}`;
+ document.getElementById("eventDesc").textContent=ev[0];
+ document.getElementById("choices").innerHTML=ev.slice(1).map((c,i)=>`<button onclick="choose(${i})">${["①","②","③"][i]} ${c[0]}</button>`).join("");
+ let acts=[];
+ if(!g.partyFounded&&g.stage>=4&&!presidential)acts.push(`<button class="gold" onclick="foundParty()">정당 창당</button>`);
+ if(!g.party&&g.stage>=4&&!presidential)acts.push(`<button onclick="joinParty()">기존 정당 합류</button>`);
+ acts.push(`<button class="secondary" onclick="campaign()">민심 청취 활동 (-2억)</button>`);
+ acts.push(`<button class="secondary" onclick="fundraise()">후원금 모금</button>`);
+ if(presidential&&g.impeach>=45)acts.push(`<button class="danger" onclick="respondImpeachment()">탄핵 정국 대응</button>`);
+ document.getElementById("actions").innerHTML=acts.join("");
+ document.getElementById("news").innerHTML=g.news.map(n=>`<div class="news">${n.t}</div>`).join("");
+ document.getElementById("log").innerHTML=g.log.map(x=>`<div class="logline">${x}</div>`).join("");
+}
+function poll(){return clamp(5+g.stats.trust*.22+g.stats.pop*.2+g.stats.lead*.12+g.stats.policy*.12+g.stats.speech*.1+g.stats.network*.08+(g.party?g.partySupport*.12:0)+Math.min(10,g.cash*.2))}
+function choose(i){
+ if(g.done)return;
+ let pres=g.phase==="president",ev=pres?presidents[(g.presTerm-1)%presidents.length]:stages[g.stage].events[g.round],c=ev[i+1],delta=c[1];
+ Object.keys(delta).forEach(k=>{
+  if(k==="approval")g.approval=clamp(g.approval+delta[k]);
+  else g.stats[k]=clamp(g.stats[k]+delta[k]);
+ });
+ if(pres){
+  g.term++;
+  let scandal=Math.random();
+  if(scandal<.16){g.impeach=clamp(g.impeach+12);g.approval=clamp(g.approval-5);news("언론: 국정 운영을 둘러싼 논란이 불거졌습니다.","bad");}
+  else if(scandal>.88){g.approval=clamp(g.approval+4);news("언론: 주요 국정 과제에서 성과가 나타났습니다.");}
+  addLog(`대통령 임기 ${g.presTerm}년 차: ${c[0]}`);
+  if(g.impeach>=75){finish("impeached");return}
+  if(g.presTerm>=5){finish("term");return}
+  g.presTerm++;g.cash+=4;
+ }else{
+  let stage=stages[g.stage];g.round++;
+  addLog(`${stage.name}: ${c[0]}`);
+  let score=poll()+Math.floor(Math.random()*13)-6;
+  if(g.round>=stage.rounds){
+   if(score>=stage.win){
+    g.won++;news(`${stage.title}: ${g.name} 후보가 당선됐습니다.`);addLog(`${stage.name} 선거 승리!`);
+    if(g.stage===4&&!g.partyFounded){news("정계에서 정당 창당 또는 합류 요구가 커지고 있습니다.");}
+    g.stage++;g.round=0;g.age+=3;g.cash+=8;g.stats.trust=clamp(g.stats.trust+3);g.stats.lead=clamp(g.stats.lead+3);
+    if(g.stage>=stages.length){finish("ready");return}
+   }else{
+    news(`${stage.title}: ${g.opponent} 후보에게 패배했습니다.`,"bad");finish("lost");return;
+   }
+  }
+ }
+ render();
+}
+function foundParty(){
+ if(g.cash<5){alert("창당에는 정치 자금 5억이 필요합니다.");return}
+ let n=prompt("새 정당의 이름을 입력하세요.","새로운내일당");if(!n||!n.trim())return;
+ g.party=n.trim().slice(0,16);g.partyFounded=true;g.partySupport=clamp(30+g.stats.network*.35);g.cash-=5;g.stats.lead=clamp(g.stats.lead+5);
+ news(`${g.name} 인사가 ${g.party} 창당을 선언했습니다.`);addLog(`${g.party} 창당`);render();
+}
+function joinParty(){
+ let n=partyNames[Math.floor(Math.random()*partyNames.length)];g.party=n;g.partySupport=38;g.stats.network=clamp(g.stats.network+5);news(`${g.name} 인사가 ${n}에 입당했습니다.`);addLog(`${n} 입당`);render();
+}
+function campaign(){
+ if(g.cash<2){alert("정치 자금이 부족합니다.");return}
+ g.cash-=2;g.stats.trust=clamp(g.stats.trust+3);g.stats.network=clamp(g.stats.network+3);g.stats.pop=clamp(g.stats.pop+2);
+ if(g.party)g.partySupport=clamp(g.partySupport+2);
+ news("언론: 현장 중심의 민심 청취 행보가 이어졌습니다.");addLog("민심 청취 활동 진행");render();
+}
+function fundraise(){
+ let gain=3+Math.floor(Math.random()*5);g.cash+=gain;g.stats.network=clamp(g.stats.network+1);
+ news(`정치 후원금 ${gain}억이 모였습니다.`);addLog(`후원금 ${gain}억 모금`);render();
+}
+function finish(reason){
+ g.done=true;let r=document.getElementById("result");r.hidden=false;
+ document.getElementById("eventTitle").textContent="정치 인생의 결산";document.getElementById("eventDesc").textContent="당신의 선택이 만든 결과입니다.";document.getElementById("choices").innerHTML="";document.getElementById("actions").innerHTML="";
+ let title="",body="";
+ if(reason==="ready"){
+  g.phase="president";g.presTerm=1;g.approval=clamp(48+g.stats.trust*.18+g.stats.policy*.08);g.impeach=0;g.term=0;g.done=false;
+  news("개표 결과: "+g.name+" 후보가 대한민국 대통령에 당선됐습니다.");addLog("대통령 당선! 5년 임기가 시작됩니다.");
+  render();document.getElementById("result").hidden=true;return;
+ }
+ if(reason==="term"){
+  g.termsServed++;
+  title="대통령 5년 임기 종료";
+  if(g.termsServed>=2){r.innerHTML=`<div class="tag">대통령 임기 결산</div><h2>두 번째 임기 종료</h2><p>헌법상 두 번째 임기를 마쳤습니다. 이제 정계 은퇴 후 기록을 남깁니다.</p><p>최종 국정 지지율 ${g.approval}%</p><button class="secondary" onclick="retire()">정계 은퇴</button>`;return;}
+  if(g.approval>=55){body="임기 말 국정 지지율이 안정적입니다. 재선에 도전할 수 있습니다.";}
+  else body="국정 지지율이 낮아 재선 도전이 쉽지 않습니다. 그래도 도전하거나 정계 은퇴를 선택할 수 있습니다.";
+  r.innerHTML=`<div class="tag">대통령 임기 결산</div><h2>${title}</h2><p class="metric">최종 국정 지지율 ${g.approval}%</p><p>${body}</p><div class="row"><button class="gold" onclick="reelect()">재선 도전</button><button class="secondary" onclick="retire()">정계 은퇴</button></div>`;return;
+ }
+ if(reason==="impeached"){
+  r.innerHTML=`<div class="tag">헌정 위기</div><h2>탄핵으로 임기 종료</h2><p>탄핵 위험이 임계치에 도달해 대통령직을 유지하지 못했습니다.</p><p>최종 국정 지지율 ${g.approval}% · 탄핵 위험 ${g.impeach}%</p><button class="gold" onclick="resetGame()">새로운 정치 인생 시작</button>`;return;
+ }
+ if(reason==="reelectWin"||reason==="reelectLose"||reason==="retired"){
+  let win=reason==="reelectWin";r.innerHTML=`<div class="tag">정치 인생 최종 기록</div><h2>${reason==="retired"?"정계 은퇴":win?"대통령 재선 성공":"대통령 재선 실패"}</h2><p class="metric">${g.name}${win?" 대통령 2기": "의 정치 여정"}</p><p>통과 단계 ${g.won}/6 · 최종 능력치 ${avg()}점 · 정당 ${g.party||"무소속"}</p><button class="gold" onclick="resetGame()">다시 도전하기</button>`;return;
+ }
+ r.innerHTML=`<div class="tag">정치 인생 결산</div><h2>선거 패배</h2><p>${g.opponent} 후보에게 패배했습니다. 통과한 단계 ${g.won}/6</p><button class="gold" onclick="resetGame()">다시 도전하기</button>`;
+}
+function reelect(){
+ if(g.termsServed>=2){retire();return}
+ let chance=clamp(g.approval*.65+g.stats.trust*.12+g.stats.policy*.08-25);
+ let roll=Math.floor(Math.random()*100)+1;
+ if(roll<=chance){g.approval=clamp(g.approval+4);g.done=false;g.phase="president";g.presTerm=1;g.term=0;g.impeach=0;g.log.unshift("대통령 재선 성공! 두 번째 5년 임기가 시작됩니다.");g.news.unshift({t:"개표 결과: 현직 대통령이 재선에 성공했습니다."});render();document.getElementById("result").hidden=true;}
+ else finish("reelectLose");
+}
+function respondImpeachment(){
+ g.impeach=clamp(g.impeach-22);g.approval=clamp(g.approval+3);g.stats.trust=clamp(g.stats.trust+3);
+ news("대통령이 국회와 국민 앞에서 해명하고 독립적인 사실 확인 절차를 수용했습니다.");addLog("탄핵 정국에서 공개 설명과 조사 수용");render();
+}
+function retire(){finish("retired")}
+function resetGame(){g=null;document.getElementById("setup").hidden=false;document.getElementById("game").hidden=true;document.getElementById("result").hidden=true;document.getElementById("playerName").value="";}
+</script></body></html>
